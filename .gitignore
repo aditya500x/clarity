@@ -1,0 +1,75 @@
+# =========================
+# GENERAL
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.bak
+.env
+.env.*
+!.env.example
+
+# =========================
+# FASTAPI / PYTHON BACKEND
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+
+# =========================
+# FLUTTER WEB ONLY
+# =========================
+# Dart / Flutter tools
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Flutter build output (WEB)
+build/
+web/build/
+
+# Generated Flutter files
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# =========================
+# DATABASE / LOCAL FILES
+# =========================
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================
+# IDE / EDITOR
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OPTIONAL: DOCKER
+# =========================
+docker-data/
+
