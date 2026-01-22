@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
-import '../widgets/app_button.dart';
+import '../widgets/primary_button.dart';
+import '../viewmodels/panic_viewmodel.dart';
 
 /// Full-screen calming mode for overwhelming moments
-class PanicModeScreen extends StatefulWidget {
-  const PanicModeScreen({super.key});
+class PanicView extends StatefulWidget {
+  const PanicView({super.key});
 
   @override
-  State<PanicModeScreen> createState() => _PanicModeScreenState();
+  State<PanicView> createState() => _PanicViewState();
 }
 
-class _PanicModeScreenState extends State<PanicModeScreen>
+class _PanicViewState extends State<PanicView>
     with SingleTickerProviderStateMixin {
+  final PanicViewModel _viewModel = PanicViewModel();
   late AnimationController _breathingController;
   late Animation<double> _breathingAnimation;
   int _breathCount = 0;
@@ -53,24 +55,23 @@ class _PanicModeScreenState extends State<PanicModeScreen>
   @override
   void dispose() {
     _breathingController.dispose();
+    _viewModel.dispose();
     super.dispose();
-  }
-
-  String get _breathingText {
-    if (_breathCount >= _totalBreaths) {
-      return "You're doing great! 💙";
-    }
-
-    if (_breathingController.status == AnimationStatus.forward ||
-        _breathingController.value > 0.5) {
-      return 'Breathe in slowly...';
-    } else {
-      return 'Breathe out gently...';
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Determine breathing state for ViewModel text generation
+    final bool isInhaling =
+        _breathingController.status == AnimationStatus.forward ||
+        _breathingController.value > 0.5;
+
+    final String breathingText = _viewModel.getBreathingText(
+      _breathCount,
+      _totalBreaths,
+      isInhaling,
+    );
+
     return Scaffold(
       backgroundColor: AppColors.accentLight,
       body: SafeArea(
@@ -86,8 +87,8 @@ class _PanicModeScreenState extends State<PanicModeScreen>
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
                 child: Text(
-                  _breathingText,
-                  key: ValueKey(_breathingText),
+                  breathingText,
+                  key: ValueKey(breathingText),
                   style: AppTextStyles.displayLarge.copyWith(fontSize: 28),
                   textAlign: TextAlign.center,
                 ),

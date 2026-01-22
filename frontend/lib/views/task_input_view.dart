@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart'; // Assuming we might add provider later, but for now manual or simple
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_text_field.dart';
-import '../widgets/app_button.dart';
-import 'task_output_screen.dart';
+import '../widgets/primary_button.dart';
+import 'task_steps_view.dart';
+import '../viewmodels/task_input_viewmodel.dart';
 
-/// Screen for inputting task to be broken down
-class TaskInputScreen extends StatefulWidget {
-  const TaskInputScreen({super.key});
+class TaskInputView extends StatefulWidget {
+  const TaskInputView({super.key});
 
   @override
-  State<TaskInputScreen> createState() => _TaskInputScreenState();
+  State<TaskInputView> createState() => _TaskInputViewState();
 }
 
-class _TaskInputScreenState extends State<TaskInputScreen> {
-  final TextEditingController _taskController = TextEditingController();
+class _TaskInputViewState extends State<TaskInputView> {
+  final TaskInputViewModel _viewModel = TaskInputViewModel();
 
   @override
   void dispose() {
-    _taskController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   void _handleBreakDownTask() {
-    if (_taskController.text.trim().isEmpty) {
+    if (!_viewModel.validateInput()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -45,7 +46,7 @@ class _TaskInputScreenState extends State<TaskInputScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskOutputScreen(taskTitle: _taskController.text),
+        builder: (context) => TaskStepsView(taskTitle: _viewModel.taskText),
       ),
     );
   }
@@ -91,7 +92,7 @@ class _TaskInputScreenState extends State<TaskInputScreen> {
 
               // Task input field
               AppTextField(
-                controller: _taskController,
+                controller: _viewModel.taskController,
                 hint:
                     'Type your assignment here...\n\nFor example: "Write an essay on Ancient Rome"',
                 maxLines: 8,
