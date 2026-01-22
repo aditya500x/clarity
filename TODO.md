@@ -2,7 +2,7 @@
 
 ## Backend
 ### DataBase Structure
-- [X] make a database of 3 tables, `task_list`, `read_safe` and `buddy`
+- [X] make a database of 3 models, `task_list`, `read_safe` and `buddy`
 - [X] for every new session, new row should be created in the respective tables
 
 ### Task Deconstructor
