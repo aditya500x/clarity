@@ -1,4 +1,4 @@
 # Installation
 ```
-pip install "fastapi[standard]"
+pip install "fastapi[standard]" fastapi uvicorn sqlalchemy python-dotenv
 ```
