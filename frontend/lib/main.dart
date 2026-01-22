@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
-import 'screens/home_screen.dart';
+import 'views/home_view.dart';
 
 void main() {
   runApp(const ClarityApp());
@@ -15,7 +15,7 @@ class ClarityApp extends StatelessWidget {
       title: 'Clarity',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+      home: const HomeView(),
     );
   }
 }
