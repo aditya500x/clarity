@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             --text-main: #2d2d2d;
             --accent: #4a7c59;
         }
+
         body {
             background-color: var(--bg-color);
             display: flex;
@@ -19,40 +21,98 @@
             font-family: sans-serif;
             color: var(--text-main);
         }
+
         .container {
             width: 100%;
             max-width: 500px;
             background: var(--card-bg);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-        .back-link { text-decoration: none; color: #888; display: block; margin-bottom: 20px; }
-        h1 { margin-bottom: 20px; font-size: 1.4rem; }
-        
-        .input-group { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        .input-group h3 { font-size: 0.9rem; text-transform: uppercase; color: #888; margin-bottom: 10px; }
 
-        textarea { width: 100%; height: 120px; border-radius: 12px; border: 1px solid #ddd; padding: 12px; font-size: 1rem; }
-        
+        .back-link {
+            text-decoration: none;
+            color: #888;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .input-group h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
         .audio-btn {
-            background: #f0f0f0; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer;
-            display: flex; align-items: center; gap: 10px; font-weight: 600; width: 100%; justify-content: center;
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            width: 100%;
+            justify-content: center;
         }
-        .audio-btn.recording { background: #ffebeb; color: #d00; }
 
-        input[type="file"] { margin-top: 10px; }
+        .audio-btn.recording {
+            background: #ffebeb;
+            color: #d00;
+        }
 
-        .submit-btn {
-            background: var(--text-main); color: white; border: none; width: 100%;
-            padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+        input[type="file"] {
             margin-top: 10px;
         }
-        
-        .loading { text-align: center; display: none; margin-top: 20px; }
-        #result-area { margin-top: 20px; }
+
+        .submit-btn {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+
+        #result-area {
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <a href="/" class="back-link">← Cancel</a>
@@ -80,7 +140,7 @@
         </div>
 
         <button class="submit-btn" onclick="submitInput()">Submit</button>
-        
+
         <div id="loading" class="loading">Processing...</div>
         <div id="result-area"></div>
     </div>
@@ -99,7 +159,7 @@
             const btn = document.getElementById('record-btn');
             const status = document.getElementById('audio-status');
             isRecording = !isRecording;
-            
+
             if (isRecording) {
                 btn.innerHTML = "<span>🛑 Stop & Convert</span>";
                 btn.classList.add('recording');
@@ -117,7 +177,7 @@
         async function submitInput() {
             const textVal = document.getElementById('text-input').value;
             const fileInput = document.getElementById('image-input');
-            
+
             // Logic to determine which data to send
             if (fileInput.files.length > 0) {
                 finalInputMethod = "image";
@@ -146,7 +206,11 @@
                 });
 
                 const data = await response.json();
-                renderResult(data);
+                if (data.session_id) {
+                    window.location.href = `/${moduleType}/${data.session_id}`;
+                } else {
+                    alert("Submission failed: No session ID returned.");
+                }
             } catch (error) {
                 alert("Submission failed. Is the backend running?");
             } finally {
@@ -167,4 +231,5 @@
         }
     </script>
 </body>
+
 </html>

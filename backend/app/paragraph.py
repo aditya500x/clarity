@@ -2,7 +2,14 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import uuid
 
+from fastapi.responses import HTMLResponse
+from pathlib import Path
+
 router = APIRouter()
+
+@router.get("/paragraph/{session_id}", response_class=HTMLResponse)
+async def get_paragraph_page(session_id: str):
+    return HTMLResponse(content=Path("temp/paragraph.html").read_text())
 
 class ReaderInput(BaseModel):
     input_method: str

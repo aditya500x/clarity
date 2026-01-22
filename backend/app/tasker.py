@@ -3,7 +3,14 @@ from pydantic import BaseModel
 from datetime import datetime
 import uuid
 
+from fastapi.responses import HTMLResponse
+from pathlib import Path
+
 router = APIRouter()
+
+@router.get("/tasker/{session_id}", response_class=HTMLResponse)
+async def get_tasker_page(session_id: str):
+    return HTMLResponse(content=Path("temp/tasker.html").read_text())
 
 class TaskInput(BaseModel):
     input_method: str # paragraph | audio | image

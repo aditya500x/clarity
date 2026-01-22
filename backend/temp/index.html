@@ -143,7 +143,7 @@
     <div class="container">
         <h1>What do you want help with today?</h1>
 
-        <!-- Task Deconstructor -->
+        <!-- Module 1: Task Deconstructor -->
         <a href="/input?module=tasker" class="menu-button">
             <div class="icon-box green">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -162,8 +162,8 @@
             <div class="chevron">›</div>
         </a>
 
-        <!-- Sensory Reader -->
-        <a href="/input?module=reader" class="menu-button">
+        <!-- Module 2: Sensory-Safe Reader (Redirects to /input?module=paragraph) -->
+        <a href="/input?module=paragraph" class="menu-button">
             <div class="icon-box blue">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -177,7 +177,7 @@
             <div class="chevron">›</div>
         </a>
 
-        <!-- Socratic Buddy (Direct to chat view for testing) -->
+        <!-- Module 3: Simple Chatbot (Redirects to /chatbot to generate session) -->
         <a href="/chatbot" class="menu-button">
             <div class="icon-box purple">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -191,6 +191,7 @@
             <div class="chevron">›</div>
         </a>
 
+        <!-- Overwhelmed Footer (Also points to chatbot start) -->
         <a href="/chatbot" class="footer-button">
             <svg viewBox="0 0 24 24" style="fill: currentColor; stroke: none;">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>

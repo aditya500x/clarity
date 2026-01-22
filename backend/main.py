@@ -18,11 +18,12 @@ async def read_index():
 async def read_input():
     return HTMLResponse(content=Path("temp/input.html").read_text())
 
-# For simplicity in temp testing, /chatbot can lead to index.html 
-# where the chat logic currently lives or its own file
-@app.get("/chatbot", response_class=HTMLResponse)
-async def read_chatbot():
-    return HTMLResponse(content=Path("temp/index.html").read_text())
+@app.get("/chatbot")
+async def start_chatbot():
+    import uuid
+    from fastapi.responses import RedirectResponse
+    session_id = str(uuid.uuid4())
+    return RedirectResponse(url=f"/chat/{session_id}")
 
 if __name__ == "__main__":
     import uvicorn

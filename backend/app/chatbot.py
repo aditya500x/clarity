@@ -7,7 +7,14 @@ from typing import List, Optional
 # Assuming database logic is imported from database.py in a real scenario
 # from .database import SessionLocal, ChatSession, ChatMessage
 
+from fastapi.responses import HTMLResponse
+from pathlib import Path
+
 router = APIRouter()
+
+@router.get("/chat/{session_id}", response_class=HTMLResponse)
+async def get_chat_page(session_id: str):
+    return HTMLResponse(content=Path("temp/chat.html").read_text())
 
 # --- Request/Response Models ---
 
