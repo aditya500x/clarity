@@ -4,12 +4,12 @@ import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_card.dart';
 import '../widgets/panic_button.dart';
-import 'task_input_screen.dart';
-import 'panic_mode_screen.dart';
+import 'task_input_view.dart';
+import 'panic_view.dart';
+// import '../viewmodels/home_viewmodel.dart'; // basic version doesn't strictly need it if no complex state
 
-/// Home screen with main navigation options
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const TaskInputScreen(),
+                          builder: (context) => const TaskInputView(),
                         ),
                       );
                     },
@@ -92,9 +92,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const PanicModeScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const PanicView()),
                 );
               },
             ),
