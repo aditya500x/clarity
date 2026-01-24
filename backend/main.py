@@ -29,6 +29,7 @@ async def start_chatbot():
     session_id = str(uuid.uuid4())
     return RedirectResponse(url=f"/chat/{session_id}")
 
+
 @app.get("/meditate", response_class=HTMLResponse)
 async def read_meditate():
     return HTMLResponse(content=Path("temp/meditate.html").read_text())

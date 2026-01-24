@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from datetime import datetime
-import uuid
-from typing import List, Optional
+import httpx
+from typing import List
 from sqlalchemy.orm import Session
 from app.database import ChatSession, ChatMessage, get_db
 
@@ -10,6 +10,9 @@ from fastapi.responses import HTMLResponse
 from pathlib import Path
 
 router = APIRouter()
+
+# Firebase AI Engine Configuration (API Server runs on 3400, UI on 4000)
+FIREBASE_AI_URL = "http://localhost:4000/chatbot_ai"
 
 @router.get("/chat/{session_id}", response_class=HTMLResponse)
 async def get_chat_page(session_id: str, db: Session = Depends(get_db)):
@@ -48,6 +51,7 @@ async def create_chat_session(request: ChatStartRequest, db: Session = Depends(g
     """
     Step 1: Create a new chat session.
     """
+    import uuid
     session_id = str(uuid.uuid4())
     
     new_session = ChatSession(id=session_id, module=request.module, status="active")
@@ -88,7 +92,7 @@ async def send_message(data: MessageRequest, db: Session = Depends(get_db)):
     """
     Flow: 
     1. Store user message
-    2. Get AI reply (Socratic/Guided)
+    2. Get AI reply from Firebase Genkit
     3. Store AI message
     4. Return AI response
     """
@@ -98,11 +102,26 @@ async def send_message(data: MessageRequest, db: Session = Depends(get_db)):
     # 1. Store User Message in DB
     user_msg = ChatMessage(session_id=session_id, sender="user", message_text=user_text)
     db.add(user_msg)
+    db.commit()
 
-    # 2. Generate AI Reply (Socratic Logic)
-    ai_reply_text = generate_socratic_reply(user_text)
+    # 2. Fetch chat history for AI context
+    messages = db.query(ChatMessage).filter(
+        ChatMessage.session_id == session_id
+    ).order_by(ChatMessage.created_at).all()
+    
+    # Format for AI engine
+    history = [
+        {
+            "sender": msg.sender,
+            "text": msg.message_text
+        }
+        for msg in messages
+    ]
 
-    # 3. Store AI Message in DB
+    # 3. Generate AI Reply (Firebase Genkit)
+    ai_reply_text = await call_firebase_ai(history)
+
+    # 4. Store AI Message in DB
     ai_msg = ChatMessage(session_id=session_id, sender="ai", message_text=ai_reply_text)
     db.add(ai_msg)
     
@@ -116,32 +135,49 @@ async def send_message(data: MessageRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/api/chatbot/end")
-async def end_chat_session(session_id: str):
+async def end_chat_session(session_id: str, db: Session = Depends(get_db)):
     """
     Mark a session as ended and record the timestamp.
     """
-    # Logic to update 'chat_sessions' table:
-    # update chat_sessions set status='ended', ended_at=now() where id=session_id
+    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    session.status = "ended"
+    session.ended_at = datetime.utcnow()
+    db.commit()
     
     return {"status": "success", "session_id": session_id, "message": "Session ended"}
 
-# --- Helper Logic (Simulated AI) ---
+# --- AI Integration Helper ---
 
-def generate_socratic_reply(user_input: str) -> str:
+async def call_firebase_ai(history: List[dict]) -> str:
     """
-    Simulates a Socratic AI response. 
-    Instead of giving answers, it asks guided questions.
+    Call Firebase Genkit AI engine with chat history.
+    Returns AI reply text.
+    Implements fallback if AI is unavailable.
     """
-    input_lower = user_input.lower()
-    
-    if "don't know" in input_lower or "help" in input_lower:
-        return "That's okay! What is the very first step you think you might need to take?"
-    
-    if "essay" in input_lower or "write" in input_lower:
-        return "If you had to explain the main idea of your writing to a friend in one sentence, what would you say?"
-    
-    if "math" in input_lower or "problem" in input_lower:
-        return "Before we look at the numbers, what is this problem asking us to find?"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                FIREBASE_AI_URL,
+                json={"data": history}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                # Genkit returns: {"result": {"reply": "..."}}
+                return result.get("result", {}).get("reply", get_fallback_message())
+            else:
+                return get_fallback_message()
+                
+    except Exception as e:
+        print(f"AI Engine Error: {e}")
+        return get_fallback_message()
 
-    # Default Socratic nudge
-    return "Interesting. What makes you say that, and how does it relate to your goal?"
+
+def get_fallback_message() -> str:
+    """
+    Safe fallback message when AI engine fails
+    """
+    return "I'm here with you. Can you tell me a bit more about what's going on?"

@@ -42,6 +42,9 @@ export const tasker_ai = ai.defineFlow(
                 },
             });
 
+            if (!response.output) {
+                throw new Error('No output returned');
+            }
             return response.output;
         } catch (error) {
             console.error('tasker_ai failed:', error);
@@ -83,6 +86,9 @@ export const paragraph_ai = ai.defineFlow(
                 },
             });
 
+            if (!response.output) {
+                throw new Error('No output returned');
+            }
             return response.output;
         } catch (error) {
             console.error('paragraph_ai failed:', error);
@@ -115,7 +121,7 @@ export const chatbot_ai = ai.defineFlow(
         const systemPrompt = loadPrompts(promptPath);
 
         const history = messages.map((m) => ({
-            role: m.sender === 'user' ? 'user' : ('model' as const),
+            role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
             content: [{ text: m.text }],
         }));
 
@@ -125,8 +131,7 @@ export const chatbot_ai = ai.defineFlow(
 
         try {
             const response = await ai.generate({
-                history: history.slice(0, -1),
-                prompt: prompt,
+                messages: history,
                 config: {
                     systemPrompt: systemPrompt,
                     temperature: 0.7,
@@ -138,11 +143,14 @@ export const chatbot_ai = ai.defineFlow(
                 },
             });
 
+            if (!response.output) {
+                throw new Error('No output returned');
+            }
             return response.output;
         } catch (error) {
             console.error('chatbot_ai failed:', error);
             return {
-                reply: 'I am here to support you. How can I help today?',
+                reply: 'I’m here with you. Can you tell me a bit more about what’s going on?',
             };
         }
     }

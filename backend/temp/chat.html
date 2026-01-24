@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socratic Chatbot</title>
+    <title>Chatbot</title>
     <style>
         :root {
             --bg-color: #fcfaf7;
@@ -33,9 +33,23 @@
             justify-content: space-between;
         }
 
-        .back-link {
-            text-decoration: none;
-            color: #888;
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .done-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .done-btn:hover {
+            background: #45a049;
         }
 
         .chat-container {
@@ -83,7 +97,7 @@
             outline: none;
         }
 
-        button {
+        button.send-btn {
             background: var(--accent);
             color: white;
             border: none;
@@ -102,37 +116,46 @@
 
 <body>
     <div class="header">
-        <a href="/" class="back-link">← Back</a>
-        <div style="text-align: right;">
-            <div style="font-weight: 700;">Socratic Buddy</div>
-            <div class="session-info" id="session-display">ID: </div>
+        <div style="text-align: left;">
+            <div style="font-weight: 700;">Chatbot</div>
+            <div class="session-info" id="session-display">Session: </div>
+        </div>
+        <div class="header-buttons">
+            <button class="done-btn" onclick="endSession()">Done</button>
         </div>
     </div>
 
     <div class="chat-container" id="chat-box">
-        <div class="message ai">Hi! I'm your Socratic Buddy. What's on your mind today?</div>
+        <div class="message ai">Hi! I'm here to help. What's on your mind today?</div>
     </div>
 
     <div class="input-area">
         <input type="text" id="user-input" placeholder="Type your message..."
             onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">Send</button>
+        <button class="send-btn" onclick="sendMessage()">Send</button>
     </div>
 
     <script>
+        // Get session_id from URL path (e.g., /chat/uuid)
         const sessionId = window.location.pathname.split('/').pop();
+
+        if (!sessionId) {
+            alert('No session ID found');
+            window.location.href = '/';
+        }
+
         document.getElementById('session-display').innerText += sessionId.substring(0, 8);
 
         // Load chat history on start
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch(`/api/chatbot/session/${sessionId}`);
+                const response = await fetch(`/chat/history/${sessionId}`);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.messages && data.messages.length > 0) {
                         const chatBox = document.getElementById('chat-box');
-                        chatBox.innerHTML = ''; // Clear default greeting if we have history
-                        data.messages.forEach(m => addMessage(m.message_text, m.sender));
+                        chatBox.innerHTML = ''; // Clear default greeting
+                        data.messages.forEach(m => addMessage(m.text, m.sender));
                     }
                 }
             } catch (e) {
@@ -149,23 +172,40 @@
             input.value = '';
 
             try {
-                const response = await fetch('/api/chatbot/message', {
+                const response = await fetch('/chat/message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: sessionId,
-                        message_text: text
+                        message: text
                     })
                 });
 
                 const data = await response.json();
-                if (data.message_text) {
-                    addMessage(data.message_text, 'ai');
+                if (data.reply) {
+                    addMessage(data.reply, 'ai');
                 }
             } catch (error) {
                 console.error("Error sending message:", error);
-                addMessage("I'm having trouble connecting to the brain. Please try again in a bit!", 'ai');
+                addMessage("I'm having trouble connecting. Please try again.", 'ai');
             }
+        }
+
+        async function endSession() {
+            try {
+                await fetch('/chat/end', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                });
+            } catch (error) {
+                console.error("Error ending session:", error);
+            }
+
+            // Redirect to index regardless of response
+            window.location.href = '/';
         }
 
         function addMessage(text, sender) {
