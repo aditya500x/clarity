@@ -1,0 +1,28 @@
+{
+  "name": "extra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@genkit-ai/ai": "^1.28.0",
+    "@genkit-ai/core": "^1.28.0",
+    "@genkit-ai/dotprompt": "^0.9.12",
+    "@genkit-ai/flow": "^0.5.17",
+    "@genkit-ai/googleai": "^1.28.0",
+    "genkit": "^1.28.0",
+    "genkit-cli": "^1.28.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

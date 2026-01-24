@@ -1,0 +1,74 @@
+# -----------------------------
+# Node.js
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------
+# Firebase
+# -----------------------------
+.firebase/
+.firebase-cache/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Firebase local config & secrets
+.runtimeconfig.json
+
+# -----------------------------
+# Environment variables
+# -----------------------------
+.env
+.env.local
+.env.*.local
+
+# -----------------------------
+# Build outputs
+# -----------------------------
+lib/
+dist/
+out/
+build/
+
+# -----------------------------
+# TypeScript
+# -----------------------------
+*.tsbuildinfo
+
+# -----------------------------
+# OS / Editor junk
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# -----------------------------
+# Coverage / logs
+# -----------------------------
+coverage/
+logs/
+*.log
+
+# -----------------------------
+# Temporary files
+# -----------------------------
+tmp/
+temp/
+
+# -----------------------------
+# Optional: keep prompt text tracked
+# -----------------------------
+# NOTE:
+# Do NOT ignore modules/**.txt
+# Prompt files MUST be committed
+# -----------------------------
+
+modules/
+.genkit/
