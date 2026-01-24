@@ -26,7 +26,7 @@ def get_db():
     finally:
         db.close()
 
-# 1) START CHAT: Generate session and redirect (Strict Navigation Flow)
+# 1) START CHAT: Generate session and redirect
 @router.get("/chat/start")
 async def start_chat(db: Session = Depends(get_db)):
     session_id = str(uuid.uuid4())
@@ -41,13 +41,11 @@ async def start_chat(db: Session = Depends(get_db)):
     db.add(new_session)
     db.commit()
     
-    # Redirect to the dynamic chat page
     return RedirectResponse(url=f"/chat/{session_id}")
 
 # 2) SERVE CHAT PAGE: Serve the static HTML file
 @router.get("/chat/{session_id}")
 async def serve_chat_page(session_id: str, db: Session = Depends(get_db)):
-    # Verify session exists in DB before serving the page
     session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Chat session not found")
@@ -64,7 +62,6 @@ async def handle_message(request: Request, db: Session = Depends(get_db)):
     if not session_id or not user_text:
         raise HTTPException(status_code=400, detail="Missing session_id or message")
 
-    # Validate session
     session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -95,14 +92,26 @@ async def handle_message(request: Request, db: Session = Depends(get_db)):
     return {"reply": ai_reply}
 
 async def call_gemini_api(user_prompt: str):
-    """Calls Gemini API with exponential backoff retries."""
+    """Calls Gemini API with initial instructions and retry logic."""
     if not API_KEY:
         return "Configuration Error: GEMINI_API_KEY is missing from the environment."
 
-    system_prompt = "You are a helpful assistant. Keep answers concise."
+    # --- INITIAL PROMPT / SYSTEM INSTRUCTIONS ---
+    # This tells the AI who it is and the context of the chat
+    system_instruction = (
+        "You are 'NexusAI', a helpful and intelligent virtual assistant integrated into "
+        "a productivity ecosystem. This application includes three main modules: "
+        "1. Tasker: For managing daily chores and to-do lists. "
+        "2. Paragraph: For creative writing and content generation. "
+        "3. Chat: Where you are currently interacting with the user. "
+        "You are chatting with a user who uses this app to stay organized and creative. "
+        "Be professional, concise, and helpful. Use Markdown for formatting code, bold text, or lists. "
+        "If the user asks about the tech stack, mention you are running on FastAPI with Gemini."
+    )
+
     payload = {
         "contents": [{"parts": [{"text": user_prompt}]}],
-        "systemInstruction": {"parts": [{"text": system_prompt}]}
+        "systemInstruction": {"parts": [{"text": system_instruction}]}
     }
 
     async with httpx.AsyncClient() as client:
@@ -116,14 +125,13 @@ async def call_gemini_api(user_prompt: str):
                 
                 if response.status_code == 200:
                     result = response.json()
-                    return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response generated.")
+                    return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "I'm sorry, I couldn't formulate a response.")
                 
                 # Retry on rate limit or server errors
                 if response.status_code in [429, 500, 503]:
                     await asyncio.sleep(2 ** attempt)
                     continue
                 
-                # Log other errors
                 print(f"API Error: {response.status_code} - {response.text}")
                 break
             except Exception as e:

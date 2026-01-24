@@ -4,16 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Session</title>
+    <!-- Tailwind for Layout -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify for Security -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    
     <style>
         .chat-container { height: calc(100vh - 160px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .message-bubble { word-wrap: break-word; overflow-wrap: break-word; }
+        
+        /* Markdown Styling Overrides (Tailwind resets these by default) */
+        .markdown-content h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .markdown-content h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .markdown-content p { margin-bottom: 0.75rem; }
+        .markdown-content p:last-child { margin-bottom: 0; }
+        .markdown-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-content code { background-color: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; rounded: 0.25rem; font-family: monospace; }
+        .markdown-content pre { background-color: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; }
+        .markdown-content pre code { background-color: transparent; padding: 0; color: inherit; }
+        .markdown-content blockquote { border-left: 4px solid #cbd5e1; padding-left: 1rem; font-style: italic; margin-bottom: 0.75rem; }
+        .markdown-content strong { font-weight: 700; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <!-- Simple Header -->
+    <!-- Header -->
     <header class="bg-white border-b p-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">C</div>
@@ -24,12 +42,11 @@
         </div>
     </header>
 
-    <!-- Chat Messages Area -->
+    <!-- Chat Window -->
     <main id="chat-window" class="chat-container overflow-y-auto p-4 md:p-8 space-y-4 hide-scrollbar">
-        <!-- Initial Connection Message -->
         <div class="flex justify-start">
             <div class="bg-white border rounded-lg p-3 max-w-[85%] md:max-w-md shadow-sm">
-                <p class="text-sm text-gray-600 italic">Connected to session. How can I help you today?</p>
+                <p class="text-sm text-gray-600 italic">Connected to session. How can I help you?</p>
             </div>
         </div>
     </main>
@@ -41,14 +58,14 @@
                 type="text" 
                 id="message-input" 
                 placeholder="Type your message..." 
-                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 autocomplete="off"
                 required
             >
             <button 
                 type="submit" 
                 id="send-btn"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 shadow-md"
+                class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50"
             >
                 Send
             </button>
@@ -62,42 +79,42 @@
         const sendBtn = document.getElementById('send-btn');
         const sessionDisplay = document.getElementById('session-display');
 
-        // Extract session_id from URL path: /chat/<session_id>
+        // Extract session_id from URL path
         const pathParts = window.location.pathname.split('/');
         const sessionId = pathParts[pathParts.length - 1];
         
-        // Display truncated session ID
         if (sessionId && sessionId !== 'chat') {
             sessionDisplay.textContent = `Session: ${sessionId.substring(0, 8)}...`;
-        } else {
-            sessionDisplay.textContent = "Session: No ID";
         }
 
         /**
-         * Appends a message to the UI
-         * @param {string} text 
-         * @param {'user' | 'ai'} sender 
+         * Appends message and renders Markdown for AI responses
          */
         function appendMessage(text, sender) {
             const div = document.createElement('div');
-            div.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`;
+            div.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
             
             const inner = document.createElement('div');
-            inner.className = `message-bubble p-3 rounded-lg max-w-[85%] md:max-w-md shadow-sm ${
+            inner.className = `p-3 rounded-lg max-w-[85%] md:max-w-2xl shadow-sm ${
                 sender === 'user' 
                     ? 'bg-blue-600 text-white rounded-br-none' 
-                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
+                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none markdown-content'
             }`;
-            inner.textContent = text;
+
+            if (sender === 'ai') {
+                // 1. Parse Markdown to HTML
+                const rawHtml = marked.parse(text);
+                // 2. Sanitize HTML for safety
+                const cleanHtml = DOMPurify.sanitize(rawHtml);
+                // 3. Insert into element
+                inner.innerHTML = cleanHtml;
+            } else {
+                inner.textContent = text;
+            }
             
             div.appendChild(inner);
             chatWindow.appendChild(div);
-            
-            // Auto-scroll to bottom
-            chatWindow.scrollTo({
-                top: chatWindow.scrollHeight,
-                behavior: 'smooth'
-            });
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         }
 
         chatForm.addEventListener('submit', async (e) => {
@@ -105,54 +122,34 @@
             const msg = messageInput.value.trim();
             if (!msg) return;
 
-            // Update UI immediately
             appendMessage(msg, 'user');
             messageInput.value = '';
             messageInput.disabled = true;
             sendBtn.disabled = true;
 
-            // Add temporary loading indicator
             const loaderId = 'loader-' + Date.now();
             const loaderDiv = document.createElement('div');
             loaderDiv.id = loaderId;
             loaderDiv.className = 'flex justify-start';
-            loaderDiv.innerHTML = `
-                <div class="bg-gray-100 p-3 rounded-lg text-xs text-gray-400 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                </div>`;
+            loaderDiv.innerHTML = `<div class="bg-gray-100 p-3 rounded-lg text-xs text-gray-400 animate-pulse">Gemini is typing...</div>`;
             chatWindow.appendChild(loaderDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
 
             try {
-                // Post to the backend API defined in app/chat.py
                 const response = await fetch('/api/chat/message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: sessionId,
-                        message: msg
-                    })
+                    body: JSON.stringify({ session_id: sessionId, message: msg })
                 });
 
-                if (!response.ok) throw new Error('Server responded with error');
-
                 const data = await response.json();
-                
-                // Remove loader
                 const loader = document.getElementById(loaderId);
                 if (loader) loader.remove();
-
-                if (data.reply) {
-                    appendMessage(data.reply, 'ai');
-                } else {
-                    appendMessage("The AI returned an empty response.", 'ai');
-                }
+                
+                appendMessage(data.reply || "Error: Empty response.", 'ai');
             } catch (err) {
                 const loader = document.getElementById(loaderId);
                 if (loader) loader.remove();
-                appendMessage("Error: Could not reach the chatbot service.", 'ai');
+                appendMessage("Error: Could not reach the server.", 'ai');
             } finally {
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
@@ -160,7 +157,6 @@
             }
         });
 
-        // Focus input on load
         window.onload = () => messageInput.focus();
     </script>
 </body>
