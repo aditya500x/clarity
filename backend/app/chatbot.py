@@ -14,6 +14,8 @@ router = APIRouter()
 
 # --- Configuration ---
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"
+# Updated directory to source chatbot-specific prompts
+MODELS_DIR = os.path.join("models", "chatbot")
 
 # Retrieve API Key from environment variables loaded in main.py
 API_KEY = os.getenv("GEMINI_API_KEY")
@@ -25,6 +27,22 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def load_custom_prompts():
+    """Reads all .txt files from the models/chatbot directory and joins them."""
+    custom_prompts = []
+    if os.path.exists(MODELS_DIR) and os.path.isdir(MODELS_DIR):
+        for filename in os.listdir(MODELS_DIR):
+            if filename.endswith(".txt"):
+                file_path = os.path.join(MODELS_DIR, filename)
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read().strip()
+                        if content:
+                            custom_prompts.append(content)
+                except Exception as e:
+                    print(f"Error reading prompt file {filename}: {e}")
+    return "\n\n".join(custom_prompts)
 
 # 1) START CHAT: Generate session and redirect
 @router.get("/chat/start")
@@ -96,22 +114,22 @@ async def call_gemini_api(user_prompt: str):
     if not API_KEY:
         return "Configuration Error: GEMINI_API_KEY is missing from the environment."
 
-    # --- INITIAL PROMPT / SYSTEM INSTRUCTIONS ---
-    # This tells the AI who it is and the context of the chat
-    system_instruction = (
-        "You are 'NexusAI', a helpful and intelligent virtual assistant integrated into "
-        "a productivity ecosystem. This application includes three main modules: "
-        "1. Tasker: For managing daily chores and to-do lists. "
-        "2. Paragraph: For creative writing and content generation. "
-        "3. Chat: Where you are currently interacting with the user. "
-        "You are chatting with a user who uses this app to stay organized and creative. "
-        "Be professional, concise, and helpful. Use Markdown for formatting code, bold text, or lists. "
-        "If the user asks about the tech stack, mention you are running on FastAPI with Gemini."
+    # --- BASE SYSTEM INSTRUCTIONS ---
+    base_instruction = (
+        "You are 'Buddy', a ADHD person helper"
     )
+
+    # --- DYNAMIC PROMPT SOURCING ---
+    # Load additional instructions from text files in the models/chatbot directory
+    custom_context = load_custom_prompts()
+    
+    full_system_instruction = base_instruction
+    if custom_context:
+        full_system_instruction += "\n\nADDITIONAL CONTEXT AND GUIDELINES:\n" + custom_context
 
     payload = {
         "contents": [{"parts": [{"text": user_prompt}]}],
-        "systemInstruction": {"parts": [{"text": system_instruction}]}
+        "systemInstruction": {"parts": [{"text": full_system_instruction}]}
     }
 
     async with httpx.AsyncClient() as client:
