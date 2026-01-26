@@ -53,6 +53,45 @@
     3. "Socratic Buddy" (for paragraph module)
     > there should be icons at begining of these buttons, and saved in assets/icons, with their names (tasker.svg, paragraph.svg and chatbot.svg)
 
+#### tasker page (at page "/tasker/uuid")
+- this will be launched when the user clicks on "Task Deconstructor" in the home page
+- and the new session with uuid will be created, then will be redirected to "/tasker/uuid" page
+- then the user gives input via text, audio, image
+    - like make three tab like columns, and selected tab's interface will be shown below that tab row
+    - the text tab will show the simple text input box
+    - the audio will show the mic button, on clicking it should start recording (with breathing animation around it), and on clicking again it should stop recording
+    - and for image, it should show two buttons, one for opening camera and another for uploading from their local machine
+- then when the user clicks on submit, it should be sent to backend and show the loading page
+- and when it receives the result, it should stop loading page, then show the result page of that module
+    - this page should support the markdown formated text
+    - the result page should show the title (which comes from the ai)
+    - then it should show the task list (with checkmark)
+- and again clicking on done button on the result page, it should again take him to the home page
+
+#### paragraph page (at page "/paragraph/uuid")
+- this will be launched when the user clicks on "Sensory Safe Reader" in the home page
+- and the new session with uuid will be created, then will be redirected to "/paragraph/uuid" page
+- then the user gives input via text, audio, image
+    - like make three tab like columns, and selected tab's interface will be shown below that tab row
+    - the text tab will show the simple text input box
+    - the audio will show the mic button, on clicking it should start recording (with breathing animation around it), and on clicking again it should stop recording
+    - and for image, it should show two buttons, one for opening camera and another for uploading from their local machine
+- then when the user clicks on submit, it should be sent to backend and show the loading page
+- and when it receives the result, it should stop loading page, then show the result page of that module
+    - this page should support the markdown formated text
+    - the result page should show the title (which comes from the ai)
+    - and it should show the paragraphs that it get from the backend
+- and again clicking on done button on the result page, it should again take him to the home page
+
+#### chatbot page (at page "/chatbot/uuid")
+- this will be launched when the user clicks on "Sensory Safe Reader" in the home page
+- and the new session with uuid will be created, then will be redirected to "/chatbot/uuid" page
+- this page should instantly show the chat page, in which the AI will first send the simple greeting message
+- all messages should support markdown formats
+- when the user enter some message, that should be sent to the backend, and then show the message loading (like that typing animation from instagram or something like that)
+- when the result comes from the backend, it should stop the loading, and display message. and same for continue
+- and when user clicks on that back button on left top of the screen, it should go back to the home page
+
 # File Structure
 clarity/
 │
