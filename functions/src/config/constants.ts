@@ -6,7 +6,7 @@
 
 export const CONSTANTS = {
     // Model configuration
-    MODEL_NAME: 'gemini-1.5-flash',
+    MODEL_NAME: 'gemini-pro',
 
     // Temperature settings for different AI tasks
     TEMPERATURE: {
@@ -25,10 +25,10 @@ export const CONSTANTS = {
     // Safety settings
     SAFETY_THRESHOLD: 'BLOCK_MEDIUM_AND_ABOVE',
 
-    // Prompt directories
+    // Prompt directories (relative to lib/ after TypeScript compilation)
     PROMPT_DIRS: {
-        TASKER: '../prompts/tasker',
-        PARAGRAPH: '../prompts/paragraph',
-        CHATBOT: '../prompts/chatbot',
+        TASKER: '../../prompts/tasker',
+        PARAGRAPH: '../../prompts/paragraph',
+        CHATBOT: '../../prompts/chatbot',
     },
 } as const;

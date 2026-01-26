@@ -12,10 +12,10 @@
  * NO HTTP logic here - pure AI orchestration.
  */
 
-import { defineFlow, generate, gemini15Flash } from '../genkit/genkit';
+import { defineFlow, generate, geminiModel } from '../genkit/genkit';
 import { getModelConfig } from '../genkit/models';
 import { loadPrompts } from '../utils/prompt_helpers';
-import { getSafetySettings, getErrorMessage } from '../utils/safety_helpers';
+import { getErrorMessage } from '../utils/safety_helpers';
 import { CONSTANTS } from '../config/constants';
 import { TaskerInputSchema, TaskerOutputSchema, type TaskerInput, type TaskerOutput } from '../schemas/tasker.schema';
 
@@ -65,12 +65,11 @@ Please break down this task into clear, actionable steps. Return your response a
 
             // Call Gemini via Genkit
             const response = await generate({
-                model: gemini15Flash,
+                model: geminiModel,
                 prompt: fullPrompt,
                 config: {
                     temperature: modelConfig.temperature,
                     maxOutputTokens: modelConfig.maxOutputTokens,
-                    safetySettings: getSafetySettings(),
                 },
             });
 
