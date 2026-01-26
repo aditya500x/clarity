@@ -178,6 +178,7 @@ tasker_screen.dart
 MODULE 2 – SENSORY SAFE READER
 -----------------------------
 
+```
 UI FLOW:
 home_screen.dart
   -> paragraph_screen.dart
@@ -196,10 +197,12 @@ paragraph_screen.dart
       -> api_service receives response
   -> loading state ends
   -> paragraph_result_screen.dart displays data
+```
 
 MODULE 3 – SOCRATIC BUDDY (CHATBOT)
 ----------------------------------
 
+```
 UI FLOW:
 home_screen.dart
   -> chatbot_screen.dart
@@ -217,12 +220,16 @@ chatbot_screen.dart
       -> api_service receives response
   -> loading indicator removed
   -> chatbot_screen.dart appends bot message
+```
 
 LOADING IMPLEMENTATION SUMMARY
 ------------------------------
+
+```
 - Loading is a UI STATE, not a screen
 - Implemented via widgets/loading_indicator.dart
 - Triggered inside:
   - tasker_screen.dart
   - paragraph_screen.dart
   - chatbot_screen.dart (per message)
+```
