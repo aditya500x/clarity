@@ -4,7 +4,7 @@ import '../../services/api_service.dart';
 import '../../utils/helpers.dart';
 import 'tasker_result_screen.dart';
 
-/// Task Deconstructor input screen (matches input.html exactly)
+/// Task Deconstructor input screen (matches lib.examples style)
 class TaskerScreen extends StatefulWidget {
   const TaskerScreen({super.key});
   
@@ -12,11 +12,13 @@ class TaskerScreen extends StatefulWidget {
   State<TaskerScreen> createState() => _TaskerScreenState();
 }
 
+enum InputMethod { text, audio, photo }
+
 class _TaskerScreenState extends State<TaskerScreen> {
   final _apiService = ApiService();
   final _textController = TextEditingController();
   bool _isLoading = false;
-  bool _showBottomSheet = false;
+  InputMethod _selectedMethod = InputMethod.text;
   
   @override
   void dispose() {
@@ -25,7 +27,10 @@ class _TaskerScreenState extends State<TaskerScreen> {
   }
   
   Future<void> _submitTask() async {
-    if (_textController.text.trim().isEmpty) return;
+    if (_textController.text.trim().isEmpty) {
+      _showToast('Please enter a task first');
+      return;
+    }
     
     setState(() => _isLoading = true);
     
@@ -55,10 +60,10 @@ class _TaskerScreenState extends State<TaskerScreen> {
   void _showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.htmlTextMain,
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFF4A4A4),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }
@@ -66,31 +71,38 @@ class _TaskerScreenState extends State<TaskerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.htmlBackground,
+      backgroundColor: const Color(0xFFFBF7F0),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFBF7F0),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.htmlTextMain, size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Break It Down',
+          style: TextStyle(
+            color: AppColors.htmlTextMain,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            _buildHeader(),
+            // Input Method Selector
+            _buildInputSelector(),
             
-            // Main Content
+            // Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    // Add Input Button
-                    _buildAddInputButton(),
+                    Expanded(child: _buildInputContent()),
                     const SizedBox(height: 16),
-                    
-                    // Input Box (expands)
-                    Expanded(
-                      child: _buildInputBox(),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Analyze Button
-                    _buildAnalyzeButton(),
+                    _buildSubmitButton(),
                   ],
                 ),
               ),
@@ -98,126 +110,146 @@ class _TaskerScreenState extends State<TaskerScreen> {
           ],
         ),
       ),
-      
-      // Bottom Sheet Overlay
-      bottomSheet: _showBottomSheet ? _buildBottomSheet() : null,
     );
   }
   
-  Widget _buildHeader() {
+  Widget _buildInputSelector() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back,
-              color: AppColors.htmlTextMain,
-              size: 24,
-            ),
+          _buildInputTab(
+            icon: Icons.keyboard_rounded,
+            label: 'Text',
+            isSelected: _selectedMethod == InputMethod.text,
+            onTap: () => setState(() => _selectedMethod = InputMethod.text),
           ),
-          const SizedBox(width: 16),
-          Text(
-            'Break It Down',
-            style: TextStyle(
-              fontSize: 17.6,
-              fontWeight: FontWeight.w500,
-              color: AppColors.htmlTextMain,
-            ),
+          const SizedBox(width: 8),
+          _buildInputTab(
+            icon: Icons.mic_rounded,
+            label: 'Voice',
+            isSelected: _selectedMethod == InputMethod.audio,
+            onTap: () {
+              _showToast('Voice input coming soon!');
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildInputTab(
+            icon: Icons.camera_alt_rounded,
+            label: 'Photo',
+            isSelected: _selectedMethod == InputMethod.photo,
+            onTap: () {
+              _showToast('Photo input coming soon!');
+            },
           ),
         ],
       ),
     );
   }
   
-  Widget _buildAddInputButton() {
-    return GestureDetector(
-      onTap: () => setState(() => _showBottomSheet = true),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFCFCFC),
-          border: Border.all(color: AppColors.htmlAccentGreen, width: 1.5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_circle_outline,
-              color: AppColors.htmlAccentGreen,
-              size: 18,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Add Input',
-              style: TextStyle(
-                fontSize: 14.4,
-                color: AppColors.htmlTextSub,
+  Widget _buildInputTab({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: Material(
+        color: isSelected ? AppColors.htmlAccentGreen : const Color(0xFFF5F0E8),
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isSelected ? AppColors.htmlAccentGreen : const Color(0xFFD6CFC3),
+                width: 1.5,
               ),
             ),
-          ],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isSelected ? Colors.white : AppColors.htmlTextMain,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : AppColors.htmlTextMain,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
   
-  Widget _buildInputBox() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F1EA),
-        border: Border.all(color: AppColors.htmlAccentGreen, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
+  Widget _buildInputContent() {
+    return TextField(
+      controller: _textController,
+      maxLines: null,
+      expands: true,
+      textAlignVertical: TextAlignVertical.top,
+      style: TextStyle(
+        fontSize: 16,
+        color: AppColors.htmlTextMain,
+        height: 1.6,
       ),
-      child: TextField(
-        controller: _textController,
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        decoration: InputDecoration(
-          hintText: 'Describe your assignment here...',
-          hintStyle: TextStyle(color: const Color(0xFFB0B0B0)),
-          border: InputBorder.none,
-        ),
-        style: TextStyle(
+      decoration: InputDecoration(
+        hintText: 'Describe your assignment here...',
+        hintStyle: TextStyle(
           fontSize: 16,
-          color: AppColors.htmlTextMain,
-          height: 1.6,
+          color: const Color(0xFF999999),
         ),
+        filled: true,
+        fillColor: const Color(0xFFF5F0E8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: const Color(0xFFD6CFC3), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: const Color(0xFFD6CFC3), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: AppColors.htmlAccentGreen, width: 2),
+        ),
+        contentPadding: const EdgeInsets.all(20),
       ),
     );
   }
   
-  Widget _buildAnalyzeButton() {
-    return GestureDetector(
-      onTap: _isLoading ? null : _submitTask,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        decoration: BoxDecoration(
-          color: AppColors.htmlAccentGreen,
-          borderRadius: BorderRadius.circular(12),
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _submitTask,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.htmlAccentGreen,
+          foregroundColor: const Color(0xFF2C2C2C),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_awesome, color: const Color(0xFF2D2D2D), size: 18),
-            const SizedBox(width: 8),
-            Text(
-              _isLoading ? 'Analyzing...' : 'Analyze Task',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF2D2D2D),
-              ),
-            ),
-            if (_isLoading) ...[
-              const SizedBox(width: 12),
+            if (_isLoading)
               SizedBox(
                 width: 20,
                 height: 20,
@@ -225,141 +257,15 @@ class _TaskerScreenState extends State<TaskerScreen> {
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation(Colors.white),
                 ),
+              )
+            else ...[
+              Icon(Icons.auto_awesome_rounded, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Analyze Task',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ],
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildBottomSheet() {
-    return GestureDetector(
-      onTap: () => setState(() => _showBottomSheet = false),
-      child: Container(
-        color: Colors.black.withOpacity(0.4),
-        child: GestureDetector(
-          onTap: () {}, // Prevent closing when tapping sheet
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFCFAF7),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 40,
-                  offset: Offset(0, -10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE0DDD7),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                
-                // Title
-                Text(
-                  'Choose Input Method',
-                  style: TextStyle(
-                    fontSize: 17.6,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.htmlTextMain,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                
-                // Options
-                _buildMethodItem(
-                  icon: Icons.keyboard,
-                  title: 'Text Input',
-                  subtitle: 'Type or paste text',
-                  onTap: () {
-                    setState(() => _showBottomSheet = false);
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                ),
-                _buildMethodItem(
-                  icon: Icons.mic,
-                  title: 'Audio Recording',
-                  subtitle: 'Record voice note',
-                  onTap: () => _showToast('Coming soon!'),
-                ),
-                _buildMethodItem(
-                  icon: Icons.camera_alt,
-                  title: 'Photo Upload',
-                  subtitle: 'Camera or gallery',
-                  onTap: () => _showToast('Coming soon!'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildMethodItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE1F0E4),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: AppColors.htmlAccentGreen, size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.htmlTextMain,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12.8,
-                      color: AppColors.htmlTextSub,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              '›',
-              style: TextStyle(
-                fontSize: 19.2,
-                color: const Color(0xFFB5B5B5),
-              ),
-            ),
           ],
         ),
       ),

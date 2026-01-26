@@ -1,184 +1,312 @@
+# Clarity
 
-🌱 CLARITY
-=========
+**ADHD Support Application** - Helping neurodivergent users break down tasks, simplify text, and get guided learning support through AI-powered tools.
 
-**Clarity** is an accessibility-first, AI-powered application built to support neurodivergent students (ADHD, dyslexia, anxiety) in thinking, reading, and learning with less cognitive overload 💙
+![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python)
+![Firebase](https://img.shields.io/badge/Firebase-Functions-FFCA28?logo=firebase)
+![Genkit](https://img.shields.io/badge/Genkit-AI-4285F4?logo=google)
 
-It is designed with a **backend-first philosophy**, where logic, state, and AI orchestration live on the server — and the frontend (Flutter) focuses purely on delivering a calm, human-friendly experience.
+---
 
+## 🎯 Problem Statement
 
-🧠 CORE DESIGN PRINCIPLES
-------------------------
+People with ADHD and neurodivergent conditions often struggle with:
+- **Task Overwhelm**: Large assignments feel impossible to start
+- **Text Processing**: Dense paragraphs are hard to parse and retain
+- **Learning Barriers**: Traditional teaching methods don't work for everyone
 
-- 🧠 Backend owns all logic and decisions  
-- 🗄️ Database is the single source of truth  
-- 🎨 Frontend is calm, minimal, and replaceable  
-- 🤖 AI assists — it never controls  
-- 🔑 Everything is session-based  
-- 🚫 No user accounts, no authentication  
+**Clarity** addresses these challenges with three specialized AI-powered modules.
 
-This keeps the system predictable, resilient, and easy to reason about.
+---
 
+## 🧩 Features
 
-🛠️ TECH STACK
---------------
+### 1. Task Deconstructor
+Break down complex tasks into small, manageable steps with time estimates and progress tracking.
 
-**Frontend**
-- 📱 Flutter (Material 3, accessibility-first design)
+### 2. Sensory Safe Reader  
+Simplify dense or academic text into calm, easy-to-understand explanations.
 
-**Backend**
-- 🧠 FastAPI (Python)
-- 🗄️ SQLite
-- 🧩 SQLAlchemy ORM
+### 3. Socratic Buddy
+AI-guided learning companion that helps you understand topics through questions rather than lectures.
 
-**AI**
-- 🤖 Gemini via Firebase + Genkit
+---
 
-The AI engine is fully **decoupled** from the backend.
+## 🛠 Tech Stack
 
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Flutter (Dart) - Cross-platform mobile/web |
+| **Backend** | FastAPI (Python) - REST API server |
+| **AI Engine** | Firebase Genkit + Google AI (Gemini) |
+| **Database** | SQLite (local sessions) |
+| **Hosting** | Firebase Functions + Cloud Run |
 
-🔑 SESSION MODEL
-----------------
+---
 
-Clarity does **not** use user accounts.
+## 📁 Project Structure
 
-Instead:
-- 🔁 Every interaction belongs to a backend-generated `session_id`
-- 🧠 `session_id` is created and owned by FastAPI
-- 🔗 `session_id` is passed between frontend and backend
-- 🚫 The frontend never generates or mutates session IDs
+```
+clarity/
+├── frontend/           # Flutter app
+│   ├── lib/
+│   │   ├── screens/    # UI screens
+│   │   ├── models/     # Data models
+│   │   ├── services/   # API client
+│   │   └── config/     # App configuration
+│   └── pubspec.yaml
+│
+├── backend/            # FastAPI server
+│   ├── app/
+│   │   ├── tasker.py   # Task Deconstructor API
+│   │   ├── paragraph.py# Sensory Reader API
+│   │   ├── chatbot.py  # Socratic Buddy API
+│   │   └── database.py # SQLite ORM
+│   ├── main.py
+│   └── requirements.txt
+│
+├── functions/          # Firebase Genkit (AI)
+│   ├── src/genkit/     # AI flow definitions
+│   ├── prompts/        # Prompt templates
+│   └── package.json
+│
+└── firebase.json       # Firebase config
+```
 
-This keeps things simple while preserving continuity.
+---
 
+## 🚀 Quick Start
 
-🧩 APPLICATION MODULES
----------------------
+### Prerequisites
 
-Clarity consists of **three independent modules**, all powered by the same backend and database.
+- Flutter SDK 3.0+
+- Python 3.11+
+- Node.js 18+
+- Firebase CLI (`npm install -g firebase-tools`)
 
+---
 
-✅ MODULE 1: TASK DECONSTRUCTOR
-------------------------------
+## 1️⃣ Backend Setup
 
-**Purpose**  
-Break large, overwhelming tasks into small, actionable steps 🧩
+```bash
+cd backend
 
-**Flow**
-📱 Flutter Home  
-→ ✍️ Task Input  
-→ 🧠 FastAPI  
-→ 🤖 Firebase AI  
-→ 🧠 FastAPI  
-→ 📋 Task Output  
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# OR: venv\Scripts\activate  # Windows
 
-**Behavior**
-- User submits input
-- Backend sends input to AI
-- AI returns a task title and ordered steps
-- Backend validates and stores the task
-- User checks off steps as they go
-- Backend tracks progress and completion 🎯
+# Install dependencies
+pip install fastapi uvicorn sqlalchemy python-dotenv httpx
 
-AI suggests structure.  
-Backend owns task state.
+# Create .env file
+cat > .env << EOF
+GENKIT_API_URL=http://localhost:3400
+GOOGLE_API_KEY=your_google_ai_api_key
+EOF
 
+# Run server
+uvicorn main:app --reload --port 5050
+```
 
-📖 MODULE 2: SENSORY-SAFE READER
--------------------------------
+**Backend runs at**: `http://localhost:5050`
 
-**Purpose**  
-Rewrite text into a calm, sensory-safe, easy-to-read format 🌿
+---
 
-**Flow**
-📱 Flutter Home  
-→ 📝 Text Input  
-→ 🧠 FastAPI  
-→ 🤖 Firebase AI  
-→ 🧠 FastAPI  
-→ 📖 Reading View  
+## 2️⃣ Frontend Setup
 
-**Behavior**
-- Backend sends text to AI
-- AI returns adapted text
-- Backend stores the result
-- User reads without distraction
+```bash
+cd frontend
 
-No progress tracking. No clutter.
+# Get dependencies
+flutter pub get
 
+# Run on Chrome
+flutter run -d chrome
 
-💬 MODULE 3: CHATBOT
--------------------
+# Or run on Android
+flutter run -d android
+```
 
-**Purpose**  
-A simple, session-based conversational assistant 🤝
+**Frontend expects backend at**: `http://localhost:5050`
 
-**Flow**
-📱 Flutter Home  
-→ 💬 Chat Screen  
-→ 🧠 FastAPI  
-→ 🤖 Firebase AI  
-→ 🧠 FastAPI  
-→ 💬 Chat Screen  
+Update `/lib/config/constants.dart` if backend URL changes:
+```dart
+static const String apiBaseUrl = 'http://localhost:5050';
+```
 
-**Behavior**
-- Backend creates a chat session
-- User sends messages
-- Backend stores user messages
-- Backend sends full chat history to AI
-- AI returns a reply
-- Backend stores AI responses
-- Session ends explicitly when the user is done 🛑
+---
 
-The frontend never talks to the AI directly.
+## 3️⃣ Firebase Genkit (AI Engine)
 
+```bash
+cd functions
 
-🤖 AI ARCHITECTURE
-------------------
+# Install dependencies
+npm install
 
-AI is implemented as a **separate Firebase / Genkit service**.
+# Create .env file
+cat > .env << EOF
+GOOGLE_API_KEY=your_google_ai_api_key
+EOF
 
-FastAPI:
-- 📤 sends input to AI
-- 🔍 validates AI output
-- 🛟 applies fallbacks on failure
-- 🗄️ persists all results
+# Start Genkit dev server
+npx genkit start -- npx tsx src/genkit/genkit.ts
+```
 
+**Genkit runs at**: `http://localhost:3400`
 
-🗄️ DATABASE RESPONSIBILITY
---------------------------
+---
 
-The database is the **source of truth**.
+## 4️⃣ Firebase Setup (Optional - for Cloud Deployment)
 
-- 🧠 Backend creates and manages all sessions
-- 🤖 AI outputs that affect UI are stored
-- 🎨 Frontend never writes to the database
-- 🤖 AI service never writes to the database
+### Initialize Firebase
 
+```bash
+# Login to Firebase
+firebase login
 
-🎯 WHY THIS ARCHITECTURE
------------------------
+# Initialize project
+firebase init functions
 
-This architecture is intentionally strict to avoid:
-- ❌ frontend-owned logic
-- ❌ hidden state
-- ❌ AI-driven control flow
-- ❌ overengineering
+# Link to existing project
+firebase use your-project-id
+```
 
-It enables:
-- ✅ predictable behavior
-- ✅ resilience to AI failure
-- ✅ fast iteration for demos and hackathons
-- ✅ easy replacement of frontend or AI engine
+### Deploy Functions
 
+```bash
+cd functions
+npm run build
+firebase deploy --only functions
+```
 
-🌟 PROJECT GOAL
----------------
+---
 
-Clarity demonstrates how **accessibility-focused design** and **AI assistance** can coexist without sacrificing reliability, control, or clarity.
+## 🌐 Deployment
 
-The system values:
-- ✨ simplicity over cleverness
-- 🔍 explicit flows over magic
-- 🧠 backend authority over distributed logic
+### Option A: Local Development (Recommended for Testing)
 
-Built with care, clarity, and compassion 💙
+1. Start Genkit: `cd functions && npx genkit start`
+2. Start Backend: `cd backend && uvicorn main:app --port 5050`
+3. Run Flutter: `cd frontend && flutter run -d chrome`
+
+### Option B: Cloud Deployment
+
+#### Backend → Cloud Run
+
+```bash
+cd backend
+
+# Build Docker image
+docker build -t clarity-api .
+
+# Push to Google Container Registry
+docker tag clarity-api gcr.io/YOUR_PROJECT/clarity-api
+docker push gcr.io/YOUR_PROJECT/clarity-api
+
+# Deploy to Cloud Run
+gcloud run deploy clarity-api \
+  --image gcr.io/YOUR_PROJECT/clarity-api \
+  --platform managed \
+  --allow-unauthenticated
+```
+
+#### AI Engine → Firebase Functions
+
+```bash
+cd functions
+firebase deploy --only functions
+```
+
+#### Flutter → Firebase Hosting (Web)
+
+```bash
+cd frontend
+flutter build web
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
+```
+
+---
+
+## 🔑 Environment Variables
+
+### Backend (.env)
+```env
+GENKIT_API_URL=http://localhost:3400   # Local Genkit
+# OR: https://your-function.cloudfunctions.net  # Production
+GOOGLE_API_KEY=your_api_key
+```
+
+### Functions (.env)
+```env
+GOOGLE_API_KEY=your_google_ai_api_key
+```
+
+---
+
+## 📡 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/tasker/start` | POST | Break down a task |
+| `/api/reader/input` | POST | Simplify text |
+| `/api/chat/message` | POST | Chat with Socratic Buddy |
+| `/api/settings/theme` | POST | Update theme preference |
+
+---
+
+## 🧪 Testing
+
+### Test Backend
+```bash
+curl http://localhost:5050/
+# {"status":"ok","message":"Clarity API is running"}
+```
+
+### Test Tasker API
+```bash
+curl -X POST http://localhost:5050/api/tasker/start \
+  -H "Content-Type: application/json" \
+  -d '{"input_method":"text","input_data":"Write an essay on climate change"}'
+```
+
+---
+
+## 📱 Screenshots
+
+*Coming soon*
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👥 Team
+
+Built with ❤️ for **Namma Hackathon** by:
+- Team Clarity
+
+---
+
+## 🙏 Acknowledgments
+
+- Google Gemini AI for powering the AI features
+- Firebase for serverless infrastructure
+- Flutter for cross-platform development
