@@ -54,6 +54,7 @@
     > there should be icons at begining of these buttons, and saved in assets/icons, with their names (tasker.svg, paragraph.svg and chatbot.svg)
 
 # File Structure
+```
 clarity/
 │
 ├── backend/
@@ -143,11 +144,15 @@ clarity/
 │   └── pubspec.yaml
 │
 └── README.md
+```
 
 # Flow
 ## Techstack flow
+```
 - USER -> Flutter -> FastAPI -> firebase -> FastAPI -> Flutter -> USER
                                     |--> app.db             |--> app.db
+```
+
 MODULE 1 – TASK DECONSTRUCTOR
 ----------------------------
 
