@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensory-Safe Reader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify for Sanitization -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --card-bg: #ffffff;
+            --text-main: #2d2d2d;
+            --accent: #4a708b;
+        }
+        body { background-color: var(--bg-color); }
+        .markdown-content { line-height: 1.8; font-size: 1.15rem; }
+        .markdown-content p { margin-bottom: 1.5rem; }
+        .markdown-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .markdown-content li { margin-bottom: 0.75rem; }
+        .markdown-content strong { color: #1e293b; font-weight: 700; }
+    </style>
+</head>
+
+<body class="p-6 md:p-12 flex justify-center text-slate-800">
+    <div class="w-full max-w-3xl bg-white p-8 md:p-12 rounded-3xl shadow-xl shadow-slate-200/50">
+        <a href="/" class="text-sm text-slate-400 hover:text-slate-600 transition-colors mb-6 inline-block">← Home</a>
+        
+        <h1 class="text-3xl font-bold mb-4 text-slate-900 leading-tight">Sensory-Safe Reader</h1>
+        <div class="text-[10px] font-mono text-slate-300 mb-10 uppercase tracking-widest" id="session-display">Session: </div>
+
+        <div id="loading-state" class="py-20 text-center space-y-4">
+            <div class="inline-block w-8 h-8 border-4 border-slate-200 border-t-sky-600 rounded-full animate-spin"></div>
+            <p class="text-slate-500 font-medium italic">Adapting text for comfort...</p>
+        </div>
+
+        <div id="content-state" class="hidden">
+            <div id="content" class="markdown-content text-slate-700 bg-slate-50/50 p-6 md:p-10 rounded-2xl border-l-4 border-sky-600/30">
+                <!-- Content will be injected here -->
+            </div>
+
+            <button id="done-btn" onclick="markComplete()"
+                class="mt-12 w-full bg-sky-700 text-white py-4 rounded-2xl font-bold text-lg hover:bg-sky-800 active:scale-[0.98] transition-all shadow-lg shadow-sky-100 disabled:opacity-50">
+                FINISHED READING
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const sessionId = window.location.pathname.split('/').pop();
+        const sessionDisplay = document.getElementById('session-display');
+        const loadingState = document.getElementById('loading-state');
+        const contentState = document.getElementById('content-state');
+        const contentEl = document.getElementById('content');
+
+        sessionDisplay.innerText += sessionId.substring(0, 8) + '...';
+
+        async function fetchAdaptedContent() {
+            try {
+                // Fetch the adapted content from our FastAPI backend
+                const response = await fetch(`/api/paragraph/details/${sessionId}`);
+                if (!response.ok) throw new Error("Failed to load content");
+                
+                const data = await response.json();
+                
+                // Render the AI-generated Markdown into safe HTML
+                const rawHtml = marked.parse(data.output_text);
+                const cleanHtml = DOMPurify.sanitize(rawHtml);
+                contentEl.innerHTML = cleanHtml;
+
+                loadingState.classList.add('hidden');
+                contentState.classList.remove('hidden');
+            } catch (error) {
+                console.error(error);
+                loadingState.innerHTML = `<p class="text-red-500 font-medium">Sorry, we couldn't load the adapted content. Please try again.</p>`;
+            }
+        }
+
+        async function markComplete() {
+            const btn = document.getElementById('done-btn');
+            btn.disabled = true;
+            btn.innerText = "Saving progress...";
+            
+            try {
+                const response = await fetch(`/api/paragraph/done/${sessionId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    window.location.href = "/";
+                } else {
+                    alert("Error finishing session.");
+                    btn.disabled = false;
+                    btn.innerText = "FINISHED READING";
+                }
+            } catch (error) {
+                alert("Failed to connect to server.");
+                btn.disabled = false;
+                btn.innerText = "FINISHED READING";
+            }
+        }
+
+        // Load the content immediately on page load
+        fetchAdaptedContent();
+    </script>
+</body>
+</html>
