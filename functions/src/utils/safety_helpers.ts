@@ -4,8 +4,6 @@
  * Utilities for handling AI safety settings and response validation.
  */
 
-import { HarmCategory, HarmBlockThreshold } from '@genkit-ai/googleai';
-
 /**
  * Get safety settings for Gemini API.
  * Blocks medium and above harmful content.
@@ -13,20 +11,20 @@ import { HarmCategory, HarmBlockThreshold } from '@genkit-ai/googleai';
 export function getSafetySettings() {
     return [
         {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            category: 'HARM_CATEGORY_HATE_SPEECH' as const,
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE' as const,
         },
         {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT' as const,
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE' as const,
         },
         {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            category: 'HARM_CATEGORY_HARASSMENT' as const,
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE' as const,
         },
         {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT' as const,
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE' as const,
         },
     ];
 }

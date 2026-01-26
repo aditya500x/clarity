@@ -5,6 +5,10 @@
  * Loads API keys and other environment variables.
  */
 
+// Load dotenv for local development
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 export const config = {
     // Google AI API key for Gemini
     googleApiKey: process.env.GOOGLE_API_KEY || '',

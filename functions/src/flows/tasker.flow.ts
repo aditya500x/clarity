@@ -12,10 +12,10 @@
  * NO HTTP logic here - pure AI orchestration.
  */
 
-import { ai } from '../genkit/genkit';
-import { geminiModel, getModelConfig } from '../genkit/models';
+import { defineFlow, generate, gemini15Flash } from '../genkit/genkit';
+import { getModelConfig } from '../genkit/models';
 import { loadPrompts } from '../utils/prompt_helpers';
-import { getSafetySettings, isValidResponse, getErrorMessage } from '../utils/safety_helpers';
+import { getSafetySettings, getErrorMessage } from '../utils/safety_helpers';
 import { CONSTANTS } from '../config/constants';
 import { TaskerInputSchema, TaskerOutputSchema, type TaskerInput, type TaskerOutput } from '../schemas/tasker.schema';
 
@@ -30,7 +30,7 @@ const TASKER_PROMPTS = loadPrompts(CONSTANTS.PROMPT_DIRS.TASKER);
  * 
  * Takes user input and returns a structured task breakdown.
  */
-export const taskerFlow = ai.defineFlow(
+export const taskerFlow = defineFlow(
     {
         name: 'taskerFlow',
         inputSchema: TaskerInputSchema,
@@ -41,7 +41,7 @@ export const taskerFlow = ai.defineFlow(
             console.log(`[Tasker Flow] Processing task for session: ${input.sessionId}`);
 
             // Get model configuration
-            const modelConfig = getModelConfig('tasker');
+            const modelConfig = getModelConfig('TASKER');
 
             // Construct the full prompt
             const fullPrompt = `${TASKER_PROMPTS}
@@ -64,8 +64,8 @@ Please break down this task into clear, actionable steps. Return your response a
 }`;
 
             // Call Gemini via Genkit
-            const { text } = await ai.generate({
-                model: geminiModel,
+            const response = await generate({
+                model: gemini15Flash,
                 prompt: fullPrompt,
                 config: {
                     temperature: modelConfig.temperature,
@@ -73,6 +73,9 @@ Please break down this task into clear, actionable steps. Return your response a
                     safetySettings: getSafetySettings(),
                 },
             });
+
+            // Get text from response (text() is a function in Genkit)
+            const text = response.text();
 
             // Validate response
             if (!text) {

@@ -11,7 +11,8 @@
  * NO AI logic here - pure HTTP handling.
  */
 
-import { Request, Response } from 'firebase-functions/v2/https';
+import type { Request, Response } from 'express';
+import { runFlow } from '@genkit-ai/flow';
 import { taskerFlow } from '../flows/tasker.flow';
 import { TaskerInputSchema, type TaskerResponse } from '../schemas/tasker.schema';
 import { getErrorMessage } from '../utils/safety_helpers';
@@ -63,8 +64,8 @@ export async function handleTaskerRequest(req: Request, res: Response): Promise<
 
         console.log(`[Tasker HTTP] Processing for session: ${validatedInput.sessionId}`);
 
-        // Call the tasker flow
-        const result = await taskerFlow(validatedInput);
+        // Call the tasker flow using runFlow
+        const result = await runFlow(taskerFlow, validatedInput);
 
         // Return success response
         res.status(200).json({

@@ -17,13 +17,12 @@ export const geminiModel = gemini15Flash;
 /**
  * Get model configuration for a specific AI module.
  * 
- * @param module - The AI module name ('tasker', 'paragraph', or 'chatbot')
+ * @param module - The AI module name ('TASKER', 'PARAGRAPH', or 'CHATBOT')
  * @returns Model configuration object
  */
-export function getModelConfig(module: 'tasker' | 'paragraph' | 'chatbot') {
+export function getModelConfig(module: 'TASKER' | 'PARAGRAPH' | 'CHATBOT') {
     return {
-        model: CONSTANTS.MODEL_NAME,
-        temperature: CONSTANTS.TEMPERATURE[module.toUpperCase() as keyof typeof CONSTANTS.TEMPERATURE],
-        maxOutputTokens: CONSTANTS.MAX_OUTPUT_TOKENS[module.toUpperCase() as keyof typeof CONSTANTS.MAX_OUTPUT_TOKENS],
+        temperature: CONSTANTS.TEMPERATURE[module],
+        maxOutputTokens: CONSTANTS.MAX_OUTPUT_TOKENS[module],
     };
 }
