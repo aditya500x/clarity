@@ -2,10 +2,18 @@
 
 **ADHD Support Application** - Helping neurodivergent users break down tasks, simplify text, and get guided learning support through AI-powered tools.
 
-![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python)
-![Firebase](https://img.shields.io/badge/Firebase-Functions-FFCA28?logo=firebase)
-![Genkit](https://img.shields.io/badge/Genkit-AI-4285F4?logo=google)
+![Dart](https://img.shields.io/badge/Dart-64.5%25-0175C2?logo=dart&logoColor=white)
+![Python](https://img.shields.io/badge/Python-20.2%25-3776AB?logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-11.1%25-3178C6?logo=typescript&logoColor=white)
+![Java](https://img.shields.io/badge/Java-1.1%25-007396?logo=openjdk&logoColor=white)
+![Objective-C](https://img.shields.io/badge/Objective--C-0.9%25-438EFF?logo=apple&logoColor=white)
+![Shell](https://img.shields.io/badge/Shell-0.7%25-4EAA25?logo=gnu-bash&logoColor=white)
+
+![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?logo=fastapi&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-Functions-FFCA28?logo=firebase&logoColor=black)
+![Genkit](https://img.shields.io/badge/Genkit-AI-4285F4?logo=google&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)
 
 ---
 
