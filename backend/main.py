@@ -1,45 +1,52 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from pathlib import Path
-from dotenv import load_dotenv
-import os
+"""
+Clarity Backend - FastAPI REST API Server
 
-# Load environment variables from .env file BEFORE importing other modules
-# This makes os.getenv("GEMINI_API_KEY") available in app/chatbot.py
+This is a pure API server for the Flutter frontend.
+All responses are JSON. No HTML rendering.
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+# Load environment variables BEFORE importing app modules
 load_dotenv()
 
 from app import tasker, paragraph, chatbot, settings
 from app.database import init_db
 
-# Initialize database tables
+# Initialize database
 init_db()
 
-app = FastAPI()
+app = FastAPI(
+    title="Clarity API",
+    description="REST API for Clarity Flutter app",
+    version="1.0.0"
+)
 
-# Mount Module Routers
+# CORS middleware for Flutter Web & Android
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Development: allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount API Routers
 app.include_router(tasker.router)
 app.include_router(paragraph.router)
 app.include_router(chatbot.router)
 app.include_router(settings.router)
 
-@app.get("/", response_class=HTMLResponse)
-async def read_index():
-    return HTMLResponse(content=Path("temp/index.html").read_text())
 
-@app.get("/input", response_class=HTMLResponse)
-async def read_input():
-    return HTMLResponse(content=Path("temp/input.html").read_text())
+@app.get("/")
+async def root():
+    """Health check endpoint."""
+    return {"status": "ok", "message": "Clarity API is running"}
 
-# Navigation Flow: Redirects to the chatbot start logic
-@app.get("/chatbot")
-async def start_chatbot_redirect():
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/chat/start")
-
-@app.get("/meditate", response_class=HTMLResponse)
-async def read_meditate():
-    return HTMLResponse(content=Path("temp/meditate.html").read_text())
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5050)
+

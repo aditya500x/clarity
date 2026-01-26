@@ -28,6 +28,21 @@ class AppColors {
   static const Color sunsetSurface = Color(0xFFFFEFDB); // Peach Cream
   static const Color sunsetTextPrimary = Color(0xFF4A3933); // Dark Brown
   static const Color sunsetTextSecondary = Color(0xFF7A6A5C); // Medium Brown
+  
+  // HTML-exact colors (from temp/*.html CSS variables)
+  static const Color htmlBackground = Color(0xFFFFFFFF);
+  static const Color htmlCardBg = Color(0xFFF8F6F0);
+  static const Color htmlTextMain = Color(0xFF333333);
+  static const Color htmlTextSub = Color(0xFF757575);
+  static const Color htmlAccentPurple = Color(0xFFE9DEF5);
+  static const Color htmlAccentGreen = Color(0xFF90C4A4);
+  static const Color htmlIconGreenBg = Color(0xFFEEF7F0);
+  static const Color htmlIconGreen = Color(0xFF90C4A4);
+  static const Color htmlIconBlueBg = Color(0xFFE9F2F8);
+  static const Color htmlIconBlue = Color(0xFF9EBED6);
+  static const Color htmlIconPurpleBg = Color(0xFFF2F0F7);
+  static const Color htmlIconPurple = Color(0xFFBCAED4);
+  static const Color htmlTaskerBg = Color(0xFFFCFAF7);
 }
 
 /// Color scheme data for each theme

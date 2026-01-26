@@ -15,7 +15,6 @@ class ApiService {
   
   /// Send task to Task Deconstructor (Module 1)
   Future<TaskResult> sendTask(
-    String sessionId,
     String inputData,
     String inputMethod,
   ) async {
@@ -24,7 +23,6 @@ class ApiService {
         Uri.parse('$_baseUrl${AppConstants.taskerEndpoint}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'session_id': sessionId,
           'input_method': inputMethod,
           'input_data': inputData,
         }),
@@ -43,7 +41,6 @@ class ApiService {
   
   /// Send paragraph to Sensory Safe Reader (Module 2)
   Future<ParagraphResult> sendParagraph(
-    String sessionId,
     String inputData,
     String inputMethod,
   ) async {
@@ -52,7 +49,6 @@ class ApiService {
         Uri.parse('$_baseUrl${AppConstants.paragraphEndpoint}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'session_id': sessionId,
           'input_method': inputMethod,
           'input_data': inputData,
         }),

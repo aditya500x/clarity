@@ -6,7 +6,7 @@ import asyncio
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from pathlib import Path
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, Task, TaskStep, get_db
@@ -122,10 +122,7 @@ async def call_gemini_deconstructor(input_text: str):
 
 # --- Routes ---
 
-@router.get("/tasker/{session_id}", response_class=HTMLResponse)
-async def get_tasker_page(session_id: str):
-    """Serves the frontend task list page."""
-    return HTMLResponse(content=Path("temp/tasker.html").read_text())
+# Legacy HTML route removed - Flutter is the frontend
 
 @router.post("/api/tasker/start")
 async def start_task_deconstruction(data: TaskStartRequest, db: Session = Depends(get_db)):

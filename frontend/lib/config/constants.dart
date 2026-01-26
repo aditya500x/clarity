@@ -3,10 +3,10 @@ class AppConstants {
   // API Configuration
   static const String apiBaseUrl = 'http://localhost:8000';
   
-  // API Endpoints
-  static const String taskerEndpoint = '/tasker';
-  static const String paragraphEndpoint = '/paragraph';
-  static const String chatbotEndpoint = '/chatbot';
+  // API Endpoints (must match FastAPI backend routes)
+  static const String taskerEndpoint = '/api/tasker/start';
+  static const String paragraphEndpoint = '/api/reader/input';
+  static const String chatbotEndpoint = '/api/chat/message';
   
   // UI Constants
   static const double defaultPadding = 16.0;

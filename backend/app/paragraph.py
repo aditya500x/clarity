@@ -6,7 +6,7 @@ import asyncio
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
 from pathlib import Path
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, ReaderSession, get_db
@@ -121,10 +121,7 @@ async def call_gemini_explainer(input_text: str):
 
 # --- Routes ---
 
-@router.get("/paragraph/{session_id}", response_class=HTMLResponse)
-async def get_paragraph_page(session_id: str):
-    """Serves the frontend sensory reader page."""
-    return HTMLResponse(content=Path("temp/paragraph.html").read_text())
+# Legacy HTML route removed - Flutter is the frontend
 
 @router.post("/api/reader/input")
 async def process_reader_input(data: ReaderInput, db: Session = Depends(get_db)):

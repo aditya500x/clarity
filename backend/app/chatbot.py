@@ -3,7 +3,7 @@ import asyncio
 import httpx
 import os
 from fastapi import APIRouter, Request, HTTPException, Depends
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -57,9 +57,10 @@ def load_custom_prompts():
                     print(f"Error reading prompt file {filename}: {e}")
     return "\n\n".join(custom_prompts)
 
-# 1) START CHAT: Generate session and redirect
-@router.get("/chat/start")
+# 1) START CHAT: Generate session and return session_id
+@router.post("/api/chat/start")
 async def start_chat(db: Session = Depends(get_db)):
+    """Creates a new chat session. Called by Flutter to start a conversation."""
     session_id = str(uuid.uuid4())
     
     new_session = ChatSession(
@@ -72,16 +73,9 @@ async def start_chat(db: Session = Depends(get_db)):
     db.add(new_session)
     db.commit()
     
-    return RedirectResponse(url=f"/chat/{session_id}")
+    return {"session_id": session_id}
 
-# 2) SERVE CHAT PAGE: Serve the static HTML file
-@router.get("/chat/{session_id}")
-async def serve_chat_page(session_id: str, db: Session = Depends(get_db)):
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=404, detail="Chat session not found")
-    
-    return FileResponse("temp/chat.html")
+# Legacy HTML route removed - Flutter is the frontend
 
 # 2.5) GET INITIAL GREETING: Generate personalized greeting based on prompts and user profile
 @router.get("/api/chat/greeting/{session_id}")
