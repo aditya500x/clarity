@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/big_action_button.dart';
-import '../tasker/tasker_screen.dart';
-import '../paragraph/paragraph_screen.dart';
-import '../chatbot/chatbot_screen.dart';
-import '../settings/settings_screen.dart';
+import '../../services/session_service.dart';
 
 /// Home screen - main landing page
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+  
+  Future<void> _navigateToModule(BuildContext context, String route) async {
+    // Generate new UUID for this session
+    final sessionService = SessionService();
+    final uuid = await sessionService.createNewSession();
+    
+    // Navigate with UUID as argument
+    if (context.mounted) {
+      Navigator.pushNamed(context, route, arguments: uuid);
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -16,10 +24,7 @@ class HomeScreen extends StatelessWidget {
       showBackButton: false,
       showSettingsIcon: true,
       onSettingsTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
-        );
+        Navigator.pushNamed(context, '/settings');
       },
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -43,12 +48,7 @@ class HomeScreen extends StatelessWidget {
           BigActionButton(
             label: 'Task Deconstructor',
             iconPath: 'assets/icons/tasker.svg',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const TaskerScreen()),
-              );
-            },
+            onTap: () => _navigateToModule(context, '/tasker'),
           ),
           const SizedBox(height: 16),
           
@@ -56,12 +56,7 @@ class HomeScreen extends StatelessWidget {
           BigActionButton(
             label: 'Sensory Safe Reader',
             iconPath: 'assets/icons/paragraph.svg',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ParagraphScreen()),
-              );
-            },
+            onTap: () => _navigateToModule(context, '/paragraph'),
           ),
           const SizedBox(height: 16),
           
@@ -69,12 +64,7 @@ class HomeScreen extends StatelessWidget {
           BigActionButton(
             label: 'Socratic Buddy',
             iconPath: 'assets/icons/chatbot.svg',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChatbotScreen()),
-              );
-            },
+            onTap: () => _navigateToModule(context, '/chatbot'),
           ),
         ],
       ),

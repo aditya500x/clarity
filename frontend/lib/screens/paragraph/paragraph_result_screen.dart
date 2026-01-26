@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
+import '../../widgets/markdown_renderer.dart';
 import '../../models/paragraph_model.dart';
 
 /// Sensory Safe Reader result screen
@@ -58,9 +59,9 @@ class _ParagraphResultScreenState extends State<ParagraphResultScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  widget.result.originalText,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                child: MarkdownRenderer(
+                  data: widget.result.originalText,
+                  baseStyle: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ),
@@ -83,9 +84,9 @@ class _ParagraphResultScreenState extends State<ParagraphResultScreen> {
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(
-                    widget.result.simplifiedText,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  child: MarkdownRenderer(
+                    data: widget.result.simplifiedText,
+                    baseStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       height: 1.6,
                     ),
                   ),
@@ -120,9 +121,9 @@ class _ParagraphResultScreenState extends State<ParagraphResultScreen> {
                                     style:
                                         Theme.of(context).textTheme.bodyLarge),
                                 Expanded(
-                                  child: Text(
-                                    point,
-                                    style:
+                                  child: MarkdownRenderer(
+                                    data: point,
+                                    baseStyle:
                                         Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
@@ -137,26 +138,15 @@ class _ParagraphResultScreenState extends State<ParagraphResultScreen> {
           
           const SizedBox(height: 16),
           
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Try Another'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.popUntil(
-                    context,
-                    (route) => route.isFirst,
-                  ),
-                  child: const Text('Back to Home'),
-                ),
-              ),
-            ],
+          // Done button
+          ElevatedButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(50),
+            ),
+            child: const Text('Done'),
           ),
         ],
       ),

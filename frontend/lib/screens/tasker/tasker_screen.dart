@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../widgets/tab_input_widget.dart';
 import '../../services/api_service.dart';
-import '../../services/session_service.dart';
-import '../../config/constants.dart';
-import '../../utils/validators.dart';
 import '../../utils/helpers.dart';
 import 'tasker_result_screen.dart';
 
@@ -17,29 +15,37 @@ class TaskerScreen extends StatefulWidget {
 }
 
 class _TaskerScreenState extends State<TaskerScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _taskController = TextEditingController();
   final _apiService = ApiService();
-  final _sessionService = SessionService();
   bool _isLoading = false;
+  String? _sessionId;
   
   @override
-  void dispose() {
-    _taskController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Extract UUID from route arguments
+    if (_sessionId == null) {
+      _sessionId = ModalRoute.of(context)!.settings.arguments as String?;
+    }
   }
   
-  Future<void> _submitTask() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitTask(String inputData, String inputMethod) async {
+    if (_sessionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Session ID not found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     
     setState(() => _isLoading = true);
     
     try {
-      final sessionId = await _sessionService.getSessionId();
       final result = await _apiService.sendTask(
-        sessionId,
-        _taskController.text.trim(),
-        AppConstants.inputMethodParagraph,
+        _sessionId!,
+        inputData,
+        inputMethod,
       );
       
       if (mounted) {
@@ -70,38 +76,24 @@ class _TaskerScreenState extends State<TaskerScreen> {
       title: 'Task Deconstructor',
       body: Stack(
         children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Break down complex tasks into simple steps',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                
-                TextFormField(
-                  controller: _taskController,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter your task',
-                    hintText: 'e.g., Plan a birthday party',
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Break down complex tasks into simple steps',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 24),
+              
+              Expanded(
+                child: TabInputWidget(
+                  onSubmit: _submitTask,
+                  textHint: 'e.g., Plan a birthday party',
+                  textLabel: 'Enter your task',
                   maxLines: 4,
-                  validator: Validators.validateTask,
-                  enabled: !_isLoading,
                 ),
-                const SizedBox(height: 24),
-                
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitTask,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  child: const Text('Break Down Task'),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           
           // Loading overlay

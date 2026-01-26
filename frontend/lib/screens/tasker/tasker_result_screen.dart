@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
+import '../../widgets/markdown_renderer.dart';
 import '../../models/task_model.dart';
 
 /// Task Deconstructor result screen
@@ -32,9 +33,9 @@ class TaskerResultScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    result.originalTask,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  MarkdownRenderer(
+                    data: result.originalTask,
+                    baseStyle: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
               ),
@@ -70,7 +71,10 @@ class TaskerResultScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    title: Text(step.stepText),
+                    title: MarkdownRenderer(
+                      data: step.stepText,
+                      baseStyle: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     subtitle: Text(
                       'Status: ${step.status}',
                       style: TextStyle(
@@ -90,26 +94,15 @@ class TaskerResultScreen extends StatelessWidget {
           
           const SizedBox(height: 16),
           
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Try Another'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.popUntil(
-                    context,
-                    (route) => route.isFirst,
-                  ),
-                  child: const Text('Back to Home'),
-                ),
-              ),
-            ],
+          // Done button
+          ElevatedButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(50),
+            ),
+            child: const Text('Done'),
           ),
         ],
       ),

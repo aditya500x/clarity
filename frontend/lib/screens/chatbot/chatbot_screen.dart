@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../widgets/markdown_renderer.dart';
 import '../../services/api_service.dart';
-import '../../services/session_service.dart';
 import '../../models/chat_model.dart';
 import '../../utils/helpers.dart';
 
@@ -18,7 +18,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final _apiService = ApiService();
-  final _sessionService = SessionService();
   final List<ChatMessage> _messages = [];
   String? _sessionId;
   bool _isLoading = false;
@@ -26,11 +25,24 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeSession();
+    // Add local greeting message
+    _messages.add(
+      ChatMessage(
+        id: 'greeting',
+        content: 'Hi! I\'m your Socratic Buddy. I\'m here to help you think through problems and learn by asking questions. What would you like to explore today?',
+        isUser: false,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
   
-  Future<void> _initializeSession() async {
-    _sessionId = await _sessionService.createNewSession();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Extract UUID from route arguments
+    if (_sessionId == null) {
+      _sessionId = ModalRoute.of(context)!.settings.arguments as String?;
+    }
   }
   
   @override
@@ -222,9 +234,9 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message.content,
-              style: TextStyle(
+            MarkdownRenderer(
+              data: message.content,
+              baseStyle: TextStyle(
                 color: message.isUser
                     ? Colors.white
                     : Theme.of(context).colorScheme.onSurface,

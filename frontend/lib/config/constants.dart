@@ -17,9 +17,9 @@ class AppConstants {
   static const double iconSize = 32.0;
   
   // Input Method Types
-  static const String inputMethodParagraph = 'paragraph';
-  static const String inputMethodVoice = 'voice';
-  static const String inputMethodFile = 'file';
+  static const String inputMethodText = 'text';
+  static const String inputMethodAudio = 'audio';
+  static const String inputMethodImage = 'image';
   
   // Theme Keys
   static const String themePreferenceKey = 'selected_theme';

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../widgets/tab_input_widget.dart';
 import '../../services/api_service.dart';
-import '../../services/session_service.dart';
-import '../../config/constants.dart';
-import '../../utils/validators.dart';
 import '../../utils/helpers.dart';
 import 'paragraph_result_screen.dart';
 
@@ -17,29 +15,37 @@ class ParagraphScreen extends StatefulWidget {
 }
 
 class _ParagraphScreenState extends State<ParagraphScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _textController = TextEditingController();
   final _apiService = ApiService();
-  final _sessionService = SessionService();
   bool _isLoading = false;
+  String? _sessionId;
   
   @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Extract UUID from route arguments
+    if (_sessionId == null) {
+      _sessionId = ModalRoute.of(context)!.settings.arguments as String?;
+    }
   }
   
-  Future<void> _submitParagraph() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitParagraph(String inputData, String inputMethod) async {
+    if (_sessionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Session ID not found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     
     setState(() => _isLoading = true);
     
     try {
-      final sessionId = await _sessionService.getSessionId();
       final result = await _apiService.sendParagraph(
-        sessionId,
-        _textController.text.trim(),
-        AppConstants.inputMethodParagraph,
+        _sessionId!,
+        inputData,
+        inputMethod,
       );
       
       if (mounted) {
@@ -70,40 +76,24 @@ class _ParagraphScreenState extends State<ParagraphScreen> {
       title: 'Sensory Safe Reader',
       body: Stack(
         children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Simplify complex text for easier reading',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                
-                TextFormField(
-                  controller: _textController,
-                  decoration: InputDecoration(
-                    labelText: 'Enter text to simplify',
-                    hintText: 'Paste complex text here...',
-                    helperText: '${_textController.text.length} characters',
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Simplify complex text for easier reading',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 24),
+              
+              Expanded(
+                child: TabInputWidget(
+                  onSubmit: _submitParagraph,
+                  textHint: 'Paste complex text here...',
+                  textLabel: 'Enter text to simplify',
                   maxLines: 8,
-                  validator: Validators.validateParagraph,
-                  enabled: !_isLoading,
-                  onChanged: (_) => setState(() {}),
                 ),
-                const SizedBox(height: 24),
-                
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitParagraph,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  child: const Text('Simplify Text'),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           
           // Loading overlay
