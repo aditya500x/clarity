@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="icon.svg" alt="Clarity Logo" width="120" height="120">
+</p>
+
 # Clarity
 
 **ADHD Support Application** - Helping neurodivergent users break down tasks, simplify text, and get guided learning support through AI-powered tools.
